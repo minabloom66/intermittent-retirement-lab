@@ -1,6 +1,6 @@
 .notes .note-links { min-height:118px; display:grid; grid-template-columns:12% 42% 1fr; align-items:center; border-bottom:1px solid var(--line); margin:0; }
 .note-links > div { display:flex; flex-wrap:wrap; gap:8px; }
-.note-links > div a { border:1px solid var(--moss); padding:8px 11px; color:var(--ink); font-size:12px; transition:.2s; }
+.note-links > div a { display:flex !important; width:180px; min-height:82px !important; grid-template-columns:none !important; align-items:center; justify-content:space-between; border:1px solid var(--moss) !important; padding:12px 14px !important; color:var(--ink); font-size:14px; line-height:1.5; transition:.2s; }
 .note-links > div a:hover { background:var(--ink); color:var(--paper); }
 .note-links > div b { font-size:14px; margin-left:4px; }
-@media(max-width:760px) { .notes .note-links { grid-template-columns:14% 1fr; gap:10px; padding:22px 0; min-height:0; } .note-links > div { grid-column:2; } .note-links > div a { font-size:11px; padding:7px 9px; } }
+@media(max-width:760px) { .notes .note-links { grid-template-columns:14% 1fr; gap:10px; padding:22px 0; min-height:0; } .note-links > div { grid-column:2; } .note-links > div a { width:100%; min-height:70px !important; font-size:13px; padding:9px 11px !important; } }
