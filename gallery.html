@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>읽고 쓰고 그리는 연구 | 간헐적은퇴 연구소</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="archive-app.css" />
+</head>
+<body>
+  <main class="archive-app">
+    <nav class="nav" aria-label="갤러리 메뉴">
+      <a class="brand" href="index.html">간헐적은퇴 <span>연구소</span></a>
+      <a class="back-link" href="index.html">연구소로 돌아가기</a>
+    </nav>
+    <section class="archive-hero" aria-labelledby="archive-title">
+      <p class="section-label">LIVING ARCHIVE</p>
+      <h1 id="archive-title">읽고 쓰고<br /><em>그리는 연구</em></h1>
+      <p>생명과 몸을 만지며 살아온 시간.<br />그림과 글을 천천히 전시합니다.</p>
+    </section>
+    <section class="archive-feed" aria-live="polite">
+      <p id="archive-status" class="archive-status">기록을 불러오는 중입니다.</p>
+      <div id="archive-grid" class="archive-grid"></div>
+    </section>
+  </main>
+  <dialog id="post-dialog" class="post-dialog">
+    <button class="dialog-close" type="button" aria-label="닫기">×</button>
+    <img id="dialog-image" alt="" hidden />
+    <p id="dialog-category" class="section-label"></p>
+    <h2 id="dialog-title"></h2>
+    <time id="dialog-date"></time>
+    <div id="dialog-body"></div>
+  </dialog>
+  <script type="module" src="archive.js"></script>
+</body>
+</html>
