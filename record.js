@@ -6,8 +6,40 @@ const authPanel = document.querySelector('#auth-panel');
 const editorPanel = document.querySelector('#editor-panel');
 const authMessage = document.querySelector('#auth-message');
 const postMessage = document.querySelector('#post-message');
+const saveButton = document.querySelector('#save-button');
 const today = new Date().toISOString().slice(0, 10);
 document.querySelector('[name="eventDate"]').value = today;
+
+const UPLOAD_TIMEOUT_MS = 90000;
+const MAX_IMAGE_EDGE = 2200;
+
+function withTimeout(promise, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = window.setTimeout(() => reject(new Error(message)), UPLOAD_TIMEOUT_MS);
+  });
+  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
+}
+
+async function prepareImageForWeb(file) {
+  if (!file.type.startsWith('image/')) throw new Error('그림 파일만 올릴 수 있습니다.');
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = objectUrl;
+    await image.decode();
+    const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(image.naturalWidth, image.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise((resolve, reject) => canvas.toBlob((result) => result ? resolve(result) : reject(new Error('그림을 준비하지 못했습니다.')), 'image/jpeg', 0.86));
+    const name = file.name.replace(/\.[^.]+$/, '') || 'image';
+    return new File([blob], `${name}.jpg`, { type: 'image/jpeg' });
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
 
 function showEditor(user) {
   authPanel.hidden = true;
@@ -38,18 +70,37 @@ document.querySelector('#signup-button').addEventListener('click', async () => {
 document.querySelector('#signout-button').addEventListener('click', async () => { await supabase.auth.signOut(); showLogin(); });
 
 document.querySelector('#post-form').addEventListener('submit', async (event) => {
-  event.preventDefault(); postMessage.textContent = '기록을 저장하는 중입니다.';
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { postMessage.textContent = '로그인이 필요합니다.'; return; }
-  const form = new FormData(event.currentTarget); const image = form.get('image'); let imageUrl = null;
-  if (image && image.size) {
-    const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, '-');
-    const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error: uploadError } = await supabase.storage.from('archive-images').upload(path, image, { cacheControl: '3600', contentType: image.type });
-    if (uploadError) { postMessage.textContent = '그림을 올리지 못했습니다. 잠시 후 다시 시도해 주세요.'; return; }
-    imageUrl = supabase.storage.from('archive-images').getPublicUrl(path).data.publicUrl;
+  event.preventDefault();
+  saveButton.disabled = true;
+  let uploadedPath = null;
+  try {
+    postMessage.textContent = '기록을 확인하는 중입니다.';
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('로그인이 필요합니다. 다시 로그인해 주세요.');
+    const form = new FormData(event.currentTarget);
+    const image = form.get('image');
+    let imageUrl = null;
+    if (image && image.size) {
+      postMessage.textContent = '그림을 웹용 크기로 준비하는 중입니다.';
+      const webImage = await prepareImageForWeb(image);
+      const safeName = webImage.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+      uploadedPath = `${user.id}/${Date.now()}-${safeName}`;
+      postMessage.textContent = '그림을 저장소에 올리는 중입니다. 큰 그림도 보통 1분 안에 끝납니다.';
+      const { error: uploadError } = await withTimeout(supabase.storage.from('archive-images').upload(uploadedPath, webImage, { cacheControl: '3600', contentType: webImage.type }), '그림 전송이 90초 안에 끝나지 않았습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.');
+      if (uploadError) throw new Error('그림을 저장소에 올리지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
+      imageUrl = supabase.storage.from('archive-images').getPublicUrl(uploadedPath).data.publicUrl;
+    }
+    postMessage.textContent = '글과 그림을 함께 저장하는 중입니다.';
+    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
+    if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
+    event.currentTarget.reset();
+    document.querySelector('[name="eventDate"]').value = today;
+    postMessage.textContent = '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
+  } catch (error) {
+    console.error(error);
+    if (uploadedPath) await supabase.storage.from('archive-images').remove([uploadedPath]);
+    postMessage.textContent = error.message || '저장 중 문제가 생겼습니다. 잠시 뒤 다시 시도해 주세요.';
+  } finally {
+    saveButton.disabled = false;
   }
-  const { error } = await supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: form.get('published') === 'on', author_id: user.id });
-  if (error) { postMessage.textContent = '저장하지 못했습니다. Supabase 설정을 한 번 확인해 주세요.'; return; }
-  event.currentTarget.reset(); document.querySelector('[name="eventDate"]').value = today; postMessage.textContent = '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
 });
