@@ -71,13 +71,14 @@ document.querySelector('#signout-button').addEventListener('click', async () => 
 
 document.querySelector('#post-form').addEventListener('submit', async (event) => {
   event.preventDefault();
+  const postForm = event.currentTarget;
   saveButton.disabled = true;
   let uploadedPath = null;
   try {
     postMessage.textContent = '기록을 확인하는 중입니다.';
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('로그인이 필요합니다. 다시 로그인해 주세요.');
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(postForm);
     const image = form.get('image');
     let imageUrl = null;
     if (image && image.size) {
@@ -93,7 +94,7 @@ document.querySelector('#post-form').addEventListener('submit', async (event) =>
     postMessage.textContent = '글과 그림을 함께 저장하는 중입니다.';
     const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
     if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
-    event.currentTarget.reset();
+    postForm.reset();
     document.querySelector('[name="eventDate"]').value = today;
     postMessage.textContent = '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
   } catch (error) {
