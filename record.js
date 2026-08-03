@@ -59,7 +59,7 @@ async function loadWritingPosts(user) {
   if (!writingMode || !user) return;
   writingLibrary.hidden = false;
   writingList.innerHTML = '<p class="writing-empty">저장한 글을 불러오는 중입니다.</p>';
-  const { data, error } = await supabase.from('archive_posts').select('id,title,body,category,event_date,created_at').eq('author_id', user.id).is('image_url', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('archive_posts').select('id,title,body,category,event_date,created_at').eq('author_id', user.id).eq('published', true).is('image_url', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
   if (error) {
     writingList.innerHTML = '<p class="writing-empty">글을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>';
     return;
@@ -123,7 +123,7 @@ document.querySelector('#post-form').addEventListener('submit', async (event) =>
       imageUrl = supabase.storage.from('archive-images').getPublicUrl(uploadedPath).data.publicUrl;
     }
     postMessage.textContent = '글과 그림을 함께 저장하는 중입니다.';
-    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: writingMode ? false : form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
+    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: writingMode ? true : form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
     if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
     postForm.reset();
     document.querySelector('[name="eventDate"]').value = today;
