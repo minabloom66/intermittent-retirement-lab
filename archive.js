@@ -25,7 +25,7 @@ function openPost(post) {
 }
 
 async function loadPosts() {
-  const { data, error } = await supabase.from('archive_posts').select('*').eq('published', true).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('archive_posts').select('*').eq('published', true).not('image_url', 'is', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
   if (error) {
     status.textContent = '첫 기록을 준비하고 있습니다.';
     return;
