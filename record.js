@@ -8,7 +8,17 @@ const authMessage = document.querySelector('#auth-message');
 const postMessage = document.querySelector('#post-message');
 const saveButton = document.querySelector('#save-button');
 const today = new Date().toISOString().slice(0, 10);
+const writingMode = new URLSearchParams(location.search).get('mode') === 'writing';
 document.querySelector('[name="eventDate"]').value = today;
+if (writingMode) {
+  document.querySelector('#record-title').innerHTML = '읽고 쓰며<br><em>기록하기</em>';
+  document.querySelector('#record-intro-copy').innerHTML = '책을 읽고 마음에 남은 생각을 글로 기록하세요.<br>이 글은 그림 갤러리에 전시되지 않습니다.';
+  document.querySelector('#image-field').hidden = true;
+  document.querySelector('#publish-field').hidden = true;
+  document.querySelector('[name="published"]').checked = false;
+  document.querySelector('[name="category"]').value = '쓰기';
+  document.querySelector('[name="body"]').placeholder = '읽고 생각한 것, 오래 남기고 싶은 문장을 적어주세요.';
+}
 
 const UPLOAD_TIMEOUT_MS = 90000;
 const MAX_IMAGE_EDGE = 2200;
@@ -92,11 +102,11 @@ document.querySelector('#post-form').addEventListener('submit', async (event) =>
       imageUrl = supabase.storage.from('archive-images').getPublicUrl(uploadedPath).data.publicUrl;
     }
     postMessage.textContent = '글과 그림을 함께 저장하는 중입니다.';
-    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
+    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: form.get('body'), image_url: imageUrl, published: writingMode ? false : form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
     if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
     postForm.reset();
     document.querySelector('[name="eventDate"]').value = today;
-    postMessage.textContent = '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
+    postMessage.textContent = writingMode ? '글쓰기 기록에 저장했습니다. 그림 갤러리에는 나타나지 않습니다.' : '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
   } catch (error) {
     console.error(error);
     if (uploadedPath) await supabase.storage.from('archive-images').remove([uploadedPath]);
