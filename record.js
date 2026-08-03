@@ -23,8 +23,8 @@ if (writingMode) {
   document.querySelector('[name="category"]').value = '쓰기';
   document.querySelector('[name="body"]').placeholder = '읽고 생각한 것, 오래 남기고 싶은 문장을 적어주세요.';
   if (libraryView) {
-    document.querySelector('#record-title').innerHTML = '읽고 쓰며<br><em>남긴 글</em>';
-    document.querySelector('#record-intro-copy').innerHTML = '책과 삶에서 발견한 문장을 함께 나눕니다.<br>최근 글부터 천천히 읽어보세요.';
+    document.querySelector('#record-title').innerHTML = '연구소<br><em>저널</em>';
+    document.querySelector('#record-intro-copy').innerHTML = '세 개의 연구실에서 발견한 생각과 삶의 기록입니다.<br>최근 글부터 천천히 읽어보세요.';
   }
 }
 
