@@ -14,7 +14,7 @@
       <a class="back-link" href="gallery.html">공개 기록 보기</a>
     </nav>
     <section class="record-wrap">
-      <div class="record-intro"><p class="section-label">PRIVATE STUDIO</p><h1>오늘의<br /><em>기록하기</em></h1><p>그림 한 장과 그날의 생각을 남겨두세요.<br />공개를 선택한 기록만 갤러리에 보입니다.</p></div>
+      <div class="record-intro"><p class="section-label">PRIVATE STUDIO</p><h1 id="record-title">오늘의<br /><em>기록하기</em></h1><p id="record-intro-copy">그림 한 장과 그날의 생각을 남겨두세요.<br />공개를 선택한 기록만 갤러리에 보입니다.</p></div>
       <section id="auth-panel" class="record-card">
         <h2>로그인</h2>
         <p>원장님만 기록을 올릴 수 있는 개인 공간입니다.</p>
@@ -24,7 +24,7 @@
       </section>
       <section id="editor-panel" class="record-card" hidden>
         <div class="editor-head"><div><h2>새 기록</h2><p id="signed-in-email"></p></div><button id="signout-button" class="text-button" type="button">로그아웃</button></div>
-        <form id="post-form"><label>제목<input name="title" maxlength="100" required placeholder="기록의 제목" /></label><div class="form-row"><label>분류<select name="category"><option>그리기</option><option>읽기</option><option>쓰기</option><option>생명에 관한 기록</option><option>간헐적은퇴의 일상</option></select></label><label>날짜<input name="eventDate" type="date" required /></label></div><label>그림 또는 사진<input name="image" type="file" accept="image/*" /><small style="font-weight:400;color:#647068;line-height:1.5">원본은 그대로 보관하고, 이곳에는 웹에서 보기 좋은 크기로 자동 조정해 올립니다.</small></label><label>글<textarea name="body" rows="10" placeholder="그림과 함께 남기고 싶은 이야기를 적어주세요."></textarea></label><label class="check-label"><input name="published" type="checkbox" checked /> 이 기록을 공개 갤러리에 전시합니다.</label><button id="save-button" class="button" type="submit">기록 저장하기 <span>→</span></button></form>
+        <form id="post-form"><label>제목<input name="title" maxlength="100" required placeholder="기록의 제목" /></label><div class="form-row"><label>분류<select name="category"><option>그리기</option><option>읽기</option><option>쓰기</option><option>생명에 관한 기록</option><option>간헐적은퇴의 일상</option></select></label><label>날짜<input name="eventDate" type="date" required /></label></div><label id="image-field">그림 또는 사진<input name="image" type="file" accept="image/*" /><small style="font-weight:400;color:#647068;line-height:1.5">원본은 그대로 보관하고, 이곳에는 웹에서 보기 좋은 크기로 자동 조정해 올립니다.</small></label><label>글<textarea name="body" rows="10" placeholder="그림과 함께 남기고 싶은 이야기를 적어주세요."></textarea></label><label id="publish-field" class="check-label"><input name="published" type="checkbox" checked /> 이 기록을 공개 갤러리에 전시합니다.</label><button id="save-button" class="button" type="submit">기록 저장하기 <span>→</span></button></form>
         <p id="post-message" class="form-message"></p>
       </section>
     </section>
