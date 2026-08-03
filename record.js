@@ -7,6 +7,8 @@ const editorPanel = document.querySelector('#editor-panel');
 const authMessage = document.querySelector('#auth-message');
 const postMessage = document.querySelector('#post-message');
 const saveButton = document.querySelector('#save-button');
+const writingLibrary = document.querySelector('#writing-library');
+const writingList = document.querySelector('#writing-list');
 const today = new Date().toISOString().slice(0, 10);
 const writingMode = new URLSearchParams(location.search).get('mode') === 'writing';
 document.querySelector('[name="eventDate"]').value = today;
@@ -51,10 +53,29 @@ async function prepareImageForWeb(file) {
   }
 }
 
+const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+
+async function loadWritingPosts(user) {
+  if (!writingMode || !user) return;
+  writingLibrary.hidden = false;
+  writingList.innerHTML = '<p class="writing-empty">저장한 글을 불러오는 중입니다.</p>';
+  const { data, error } = await supabase.from('archive_posts').select('id,title,body,category,event_date,created_at').eq('author_id', user.id).is('image_url', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  if (error) {
+    writingList.innerHTML = '<p class="writing-empty">글을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>';
+    return;
+  }
+  if (!data.length) {
+    writingList.innerHTML = '<p class="writing-empty">아직 저장한 글이 없습니다. 첫 문장을 남겨보세요.</p>';
+    return;
+  }
+  writingList.innerHTML = data.map((post) => '<article class="writing-item"><small>' + escapeHtml(post.event_date || '') + ' · ' + escapeHtml(post.category || '쓰기') + '</small><h3>' + escapeHtml(post.title) + '</h3><p>' + escapeHtml(post.body || '') + '</p></article>').join('');
+}
+
 function showEditor(user) {
   authPanel.hidden = true;
   editorPanel.hidden = false;
   document.querySelector('#signed-in-email').textContent = user.email;
+  if (writingMode) loadWritingPosts(user);
 }
 function showLogin() { authPanel.hidden = false; editorPanel.hidden = true; }
 
@@ -106,7 +127,8 @@ document.querySelector('#post-form').addEventListener('submit', async (event) =>
     if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
     postForm.reset();
     document.querySelector('[name="eventDate"]').value = today;
-    postMessage.textContent = writingMode ? '글쓰기 기록에 저장했습니다. 그림 갤러리에는 나타나지 않습니다.' : '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
+    postMessage.textContent = writingMode ? '글쓰기 기록에 저장했습니다. 아래 나의 글 기록에서 확인할 수 있습니다.' : '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
+    if (writingMode) await loadWritingPosts(user);
   } catch (error) {
     console.error(error);
     if (uploadedPath) await supabase.storage.from('archive-images').remove([uploadedPath]);
