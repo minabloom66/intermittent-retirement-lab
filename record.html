@@ -6,7 +6,9 @@
   <title>기록하기 | 간헐적은퇴 연구소</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="archive-app.css" />
-</head>
+<style>
+.writing-library{margin-top:28px;padding-top:28px;border-top:1px solid #d8d0c2}.writing-library h2{margin:0 0 6px}.writing-library>p{color:#647068;margin:0 0 18px}.writing-list{display:grid;gap:14px}.writing-item{padding:22px;background:#f3eee4;border-left:3px solid #6d7455}.writing-item small{display:block;color:#8b755c;margin-bottom:7px}.writing-item h3{font:500 20px/1.5 serif;margin:0 0 8px;color:#243a32}.writing-item p{white-space:pre-wrap;margin:0;color:#525b54}.writing-empty{padding:22px;background:#f3eee4;color:#647068}
+</style></head>
 <body>
   <main class="archive-app record-page">
     <nav class="nav" aria-label="기록 메뉴">
@@ -25,7 +27,7 @@
       <section id="editor-panel" class="record-card" hidden>
         <div class="editor-head"><div><h2>새 기록</h2><p id="signed-in-email"></p></div><button id="signout-button" class="text-button" type="button">로그아웃</button></div>
         <form id="post-form"><label>제목<input name="title" maxlength="100" required placeholder="기록의 제목" /></label><div class="form-row"><label>분류<select name="category"><option>그리기</option><option>읽기</option><option>쓰기</option><option>생명에 관한 기록</option><option>간헐적은퇴의 일상</option></select></label><label>날짜<input name="eventDate" type="date" required /></label></div><label id="image-field">그림 또는 사진<input name="image" type="file" accept="image/*" /><small style="font-weight:400;color:#647068;line-height:1.5">원본은 그대로 보관하고, 이곳에는 웹에서 보기 좋은 크기로 자동 조정해 올립니다.</small></label><label>글<textarea name="body" rows="10" placeholder="그림과 함께 남기고 싶은 이야기를 적어주세요."></textarea></label><label id="publish-field" class="check-label"><input name="published" type="checkbox" checked /> 이 기록을 공개 갤러리에 전시합니다.</label><button id="save-button" class="button" type="submit">기록 저장하기 <span>→</span></button></form>
-        <p id="post-message" class="form-message"></p>
+        <p id="post-message" class="form-message"></p><section id="writing-library" class="writing-library" hidden><h2>나의 글 기록</h2><p>저장한 글은 이곳에 차곡차곡 남습니다.</p><div id="writing-list" class="writing-list"><p class="writing-empty">저장한 글을 불러오는 중입니다.</p></div></section>
       </section>
     </section>
   </main>
