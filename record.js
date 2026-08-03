@@ -10,7 +10,9 @@ const saveButton = document.querySelector('#save-button');
 const writingLibrary = document.querySelector('#writing-library');
 const writingList = document.querySelector('#writing-list');
 const today = new Date().toISOString().slice(0, 10);
-const writingMode = new URLSearchParams(location.search).get('mode') === 'writing';
+const pageParams = new URLSearchParams(location.search);
+const writingMode = pageParams.get('mode') === 'writing';
+const libraryView = writingMode && pageParams.get('view') === 'library';
 document.querySelector('[name="eventDate"]').value = today;
 if (writingMode) {
   document.querySelector('#record-title').innerHTML = '읽고 쓰며<br><em>기록하기</em>';
@@ -20,6 +22,10 @@ if (writingMode) {
   document.querySelector('[name="published"]').checked = false;
   document.querySelector('[name="category"]').value = '쓰기';
   document.querySelector('[name="body"]').placeholder = '읽고 생각한 것, 오래 남기고 싶은 문장을 적어주세요.';
+  if (libraryView) {
+    document.querySelector('#record-title').innerHTML = '나의 글<br><em>기록</em>';
+    document.querySelector('#record-intro-copy').innerHTML = '읽고 쓰며 남긴 나의 문장을 모아봅니다.<br>새 글은 글쓰기 버튼에서 시작할 수 있습니다.';
+  }
 }
 
 const UPLOAD_TIMEOUT_MS = 90000;
@@ -75,7 +81,14 @@ function showEditor(user) {
   authPanel.hidden = true;
   editorPanel.hidden = false;
   document.querySelector('#signed-in-email').textContent = user.email;
-  if (writingMode) loadWritingPosts(user);
+  if (writingMode) {
+    if (libraryView) {
+      document.querySelector('#post-form').hidden = true;
+      document.querySelector('#editor-title').textContent = '나의 글 기록';
+      document.querySelector('#new-writing-button').hidden = false;
+    }
+    loadWritingPosts(user);
+  }
 }
 function showLogin() { authPanel.hidden = false; editorPanel.hidden = true; }
 
