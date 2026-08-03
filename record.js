@@ -23,8 +23,8 @@ if (writingMode) {
   document.querySelector('[name="category"]').value = '쓰기';
   document.querySelector('[name="body"]').placeholder = '읽고 생각한 것, 오래 남기고 싶은 문장을 적어주세요.';
   if (libraryView) {
-    document.querySelector('#record-title').innerHTML = '나의 글<br><em>기록</em>';
-    document.querySelector('#record-intro-copy').innerHTML = '읽고 쓰며 남긴 나의 문장을 모아봅니다.<br>새 글은 글쓰기 버튼에서 시작할 수 있습니다.';
+    document.querySelector('#record-title').innerHTML = '읽고 쓰며<br><em>남긴 글</em>';
+    document.querySelector('#record-intro-copy').innerHTML = '책과 삶에서 발견한 문장을 함께 나눕니다.<br>최근 글부터 천천히 읽어보세요.';
   }
 }
 
@@ -62,10 +62,12 @@ async function prepareImageForWeb(file) {
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
 async function loadWritingPosts(user) {
-  if (!writingMode || !user) return;
+  if (!writingMode || (!libraryView && !user)) return;
   writingLibrary.hidden = false;
   writingList.innerHTML = '<p class="writing-empty">저장한 글을 불러오는 중입니다.</p>';
-  const { data, error } = await supabase.from('archive_posts').select('id,title,body,category,event_date,created_at').eq('author_id', user.id).eq('published', true).is('image_url', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  let query = supabase.from('archive_posts').select('id,title,body,category,event_date,created_at').eq('published', true).is('image_url', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  if (!libraryView) query = query.eq('author_id', user.id);
+  const { data, error } = await query;
   if (error) {
     writingList.innerHTML = '<p class="writing-empty">글을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>';
     return;
@@ -92,8 +94,20 @@ function showEditor(user) {
 }
 function showLogin() { authPanel.hidden = false; editorPanel.hidden = true; }
 
+function showPublicLibrary() {
+  authPanel.hidden = true;
+  editorPanel.hidden = false;
+  document.querySelector('.editor-head').hidden = true;
+  document.querySelector('#post-form').hidden = true;
+  postMessage.hidden = true;
+  document.querySelector('#new-writing-button').hidden = true;
+  writingLibrary.hidden = false;
+  loadWritingPosts(null);
+}
+
 const { data: { session } } = await supabase.auth.getSession();
 if (session) showEditor(session.user);
+else if (libraryView) showPublicLibrary();
 
 document.querySelector('#login-form').addEventListener('submit', async (event) => {
   event.preventDefault(); authMessage.textContent = '로그인 중입니다.';
