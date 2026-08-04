@@ -5,6 +5,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const grid = document.querySelector('#archive-grid');
 const status = document.querySelector('#archive-status');
 const dialog = document.querySelector('#post-dialog');
+const selectedLab = new URLSearchParams(location.search).get('lab');
 const escape = (value = '') => value.replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
 function displayDate(value) {
@@ -25,7 +26,9 @@ function openPost(post) {
 }
 
 async function loadPosts() {
-  const { data, error } = await supabase.from('archive_posts').select('*').eq('published', true).not('image_url', 'is', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  let query = supabase.from('archive_posts').select('*').eq('published', true).not('image_url', 'is', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+  if (selectedLab) query = query.eq('category', selectedLab);
+  const { data, error } = await query;
   if (error) {
     status.textContent = '첫 기록을 준비하고 있습니다.';
     return;
