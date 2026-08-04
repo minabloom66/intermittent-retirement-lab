@@ -13,14 +13,15 @@ const today = new Date().toISOString().slice(0, 10);
 const pageParams = new URLSearchParams(location.search);
 const writingMode = pageParams.get('mode') === 'writing';
 const libraryView = writingMode && pageParams.get('view') === 'library';
+const selectedLab = pageParams.get('lab');
 document.querySelector('[name="eventDate"]').value = today;
+if (selectedLab) document.querySelector('[name="category"]').value = selectedLab;
 if (writingMode) {
   document.querySelector('#record-title').innerHTML = '읽고 쓰며<br><em>기록하기</em>';
   document.querySelector('#record-intro-copy').innerHTML = '책을 읽고 마음에 남은 생각을 글로 기록하세요.<br>이 글은 그림 갤러리에 전시되지 않습니다.';
   document.querySelector('#image-field').hidden = true;
   document.querySelector('#publish-field').hidden = true;
   document.querySelector('[name="published"]').checked = false;
-  document.querySelector('[name="category"]').value = '쓰기';
   document.querySelector('[name="body"]').placeholder = '읽고 생각한 것, 오래 남기고 싶은 문장을 적어주세요.';
   if (libraryView) {
     document.querySelector('#record-title').innerHTML = '연구소<br><em>저널</em>';
@@ -67,6 +68,7 @@ async function loadWritingPosts(user) {
   writingList.innerHTML = '<p class="writing-empty">저장한 글을 불러오는 중입니다.</p>';
   let query = supabase.from('archive_posts').select('id,title,body,category,event_date,created_at').eq('published', true).is('image_url', null).order('event_date', { ascending: false }).order('created_at', { ascending: false });
   if (!libraryView) query = query.eq('author_id', user.id);
+  if (selectedLab) query = query.eq('category', selectedLab);
   const { data, error } = await query;
   if (error) {
     writingList.innerHTML = '<p class="writing-empty">글을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요.</p>';
@@ -154,6 +156,7 @@ document.querySelector('#post-form').addEventListener('submit', async (event) =>
     if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
     postForm.reset();
     document.querySelector('[name="eventDate"]').value = today;
+    if (selectedLab) document.querySelector('[name="category"]').value = selectedLab;
     postMessage.textContent = writingMode ? '글쓰기 기록에 저장했습니다. 아래 나의 글 기록에서 확인할 수 있습니다.' : '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.';
     if (writingMode) await loadWritingPosts(user);
   } catch (error) {
