@@ -13,10 +13,22 @@ const today = new Date().toISOString().slice(0, 10);
 const pageParams = new URLSearchParams(location.search);
 const writingMode = pageParams.get('mode') === 'writing';
 const interviewMode = pageParams.get('mode') === 'interview';
+const dailyMode = pageParams.get('mode') === 'daily';
 const libraryView = writingMode && pageParams.get('view') === 'library';
 const selectedLab = pageParams.get('lab');
 document.querySelector('[name="eventDate"]').value = today;
 if (selectedLab) document.querySelector('[name="category"]').value = selectedLab;
+if (dailyMode) {
+  document.querySelector('#record-title').innerHTML = '매일의<br><em>글과 그림</em>';
+  document.querySelector('#record-intro-copy').innerHTML = '오늘의 글과 그림을 한곳에 남겨주세요.<br>저장하면 MINA 홈페이지의 매일 기록에 나타납니다.';
+  document.querySelector('#editor-title').textContent = '새 매일 기록';
+  document.querySelector('#publish-field').hidden = true;
+  document.querySelector('#category-field').hidden = true;
+  const dailyCategory = document.querySelector('[name="category"]');
+  dailyCategory.add(new Option('매일 기록', '매일 기록'));
+  dailyCategory.value = '매일 기록';
+  document.querySelector('[name="body"]').placeholder = '오늘 남기고 싶은 이야기를 적어주세요.';
+}
 if (interviewMode) {
   document.querySelector('#record-title').innerHTML = '인터뷰<br><em>소식 올리기</em>';
   document.querySelector('#record-intro-copy').innerHTML = '새 인터뷰 소식과 소개 글을 남겨주세요.<br>관련 링크가 있다면 함께 붙여 넣을 수 있습니다.';
@@ -169,13 +181,14 @@ document.querySelector('#post-form').addEventListener('submit', async (event) =>
     let postBody = String(form.get('body') || '').trim();
     const externalLink = String(form.get('externalLink') || '').trim();
     if (interviewMode && externalLink) postBody += (postBody ? '\n\n' : '') + '관련 링크: ' + externalLink;
-    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: postBody, image_url: imageUrl, published: (writingMode || interviewMode) ? true : form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
+    const { error } = await withTimeout(supabase.from('archive_posts').insert({ title: form.get('title'), category: form.get('category'), event_date: form.get('eventDate'), body: postBody, image_url: imageUrl, published: (writingMode || interviewMode || dailyMode) ? true : form.get('published') === 'on', author_id: user.id }), '기록 저장이 90초 안에 끝나지 않았습니다. 잠시 뒤 다시 시도해 주세요.');
     if (error) throw new Error('기록을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
     postForm.reset();
     document.querySelector('[name="eventDate"]').value = today;
     if (selectedLab) document.querySelector('[name="category"]').value = selectedLab;
     if (interviewMode) document.querySelector('[name="category"]').value = '인터뷰 소식';
-    postMessage.textContent = interviewMode ? '인터뷰 소식에 올렸습니다. 인터뷰 소식 페이지에서 바로 확인할 수 있습니다.' : (writingMode ? '글쓰기 기록에 저장했습니다. 아래 나의 글 기록에서 확인할 수 있습니다.' : '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.');
+    if (dailyMode) document.querySelector('[name="category"]').value = '매일 기록';
+    postMessage.textContent = dailyMode ? '매일의 글과 그림에 올렸습니다. MINA 홈페이지에서 바로 확인할 수 있습니다.' : (interviewMode ? '인터뷰 소식에 올렸습니다. 인터뷰 소식 페이지에서 바로 확인할 수 있습니다.' : (writingMode ? '글쓰기 기록에 저장했습니다. 아래 나의 글 기록에서 확인할 수 있습니다.' : '저장했습니다. 공개 기록은 갤러리에 바로 나타납니다.'));
     if (writingMode) await loadWritingPosts(user);
   } catch (error) {
     console.error(error);
