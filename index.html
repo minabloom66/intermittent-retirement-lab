@@ -3,82 +3,91 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="천천히 살고, 가끔 기록하는 간헐적 은퇴 연구소.">
-  <title>간헐적 은퇴 연구소 | 오늘의 기록</title>
+  <meta name="description" content="숲을 방문하고, 정리하고, 오래 남기는 개인 아카이브.">
+  <title>숲의 기록실 | 간헐적 은퇴 연구소</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root { --ink:#25312b; --paper:#f8f6ef; --line:#deddd4; --moss:#66735d; --mist:#e9eee5; }
+    :root { --forest:#173a2c; --deep:#0d281e; --moss:#89a978; --leaf:#c8d7b7; --paper:#f4f1e8; --ink:#1d3028; --line:rgba(29,48,40,.16); }
     * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
     body { margin:0; background:var(--paper); color:var(--ink); font-family:'DM Sans','Noto Sans KR',sans-serif; line-height:1.65; }
     a { color:inherit; text-decoration:none; }
-    header { max-width:1100px; margin:auto; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; }
-    .brand { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:600; letter-spacing:-.02em; }
-    .mark { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--ink); color:#fff; font:500 12px Georgia,serif; }
-    nav { display:flex; gap:18px; font-size:13px; color:#596158; }
-    nav a:hover, .quiet:hover { text-decoration:underline; }
-    main { max-width:1100px; margin:auto; padding:32px 28px 76px; }
-    .hero { padding:76px 0 58px; max-width:710px; }
-    .eyebrow { margin:0 0 16px; color:var(--moss); font-size:11px; font-weight:600; letter-spacing:.13em; }
-    h1,h2 { font-family:'Noto Serif KR',serif; letter-spacing:-.055em; font-weight:500; }
-    h1 { margin:0; font-size:clamp(39px,6vw,68px); line-height:1.26; }
-    h1 em { color:var(--moss); font-style:normal; }
-    .intro { max-width:480px; margin:24px 0 32px; color:#596158; font-size:16px; }
-    .actions { display:flex; flex-wrap:wrap; gap:10px; }
-    .button { padding:13px 20px; border-radius:999px; font-size:14px; font-weight:600; transition:.2s ease; }
-    .primary { background:var(--ink); color:white; }
-    .primary:hover { background:var(--moss); transform:translateY(-1px); }
-    .secondary { border:1px solid var(--line); background:#fffdfa; }
-    .secondary:hover { border-color:var(--moss); }
-    .divider { height:1px; background:var(--line); }
-    .section-title { display:flex; justify-content:space-between; align-items:end; gap:24px; padding:40px 0 20px; }
-    .section-title h2 { margin:0; font-size:28px; }
-    .section-title p { margin:0; color:#687066; font-size:14px; }
-    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-    .card { min-height:235px; padding:27px; border:1px solid var(--line); background:#fffdfa; display:flex; flex-direction:column; justify-content:space-between; transition:.2s ease; }
-    .card:hover { border-color:var(--moss); box-shadow:0 12px 30px rgba(37,49,43,.08); transform:translateY(-3px); }
-    .number { color:var(--moss); font-size:12px; font-weight:600; letter-spacing:.08em; }
-    .card h3 { margin:10px 0 8px; font-family:'Noto Serif KR',serif; font-size:23px; font-weight:500; letter-spacing:-.04em; }
-    .card p { margin:0; color:#687066; font-size:14px; }
-    .arrow { align-self:flex-end; color:var(--moss); font-size:20px; }
-    .note { margin-top:60px; padding:30px; background:var(--mist); display:flex; align-items:center; justify-content:space-between; gap:24px; }
-    .note h2 { margin:0 0 5px; font-size:25px; }
-    .note p { margin:0; color:#5d685c; font-size:14px; }
-    .quiet { white-space:nowrap; font-size:14px; font-weight:600; }
-    footer { border-top:1px solid var(--line); max-width:1100px; margin:auto; padding:28px; display:flex; justify-content:space-between; color:#687066; font-size:12px; }
-    @media (max-width:700px) { header { padding:18px 20px; } nav { gap:12px; } main { padding:18px 20px 52px; } .hero { padding:52px 0 42px; } .cards { grid-template-columns:1fr; } .card { min-height:180px; } .section-title,.note,footer { align-items:flex-start; flex-direction:column; } }
+    .hero { min-height:92vh; color:#f7f5ed; position:relative; isolation:isolate; background:linear-gradient(90deg,rgba(5,27,18,.76) 0%,rgba(5,27,18,.38) 55%,rgba(5,27,18,.58) 100%),url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2400&q=90') center/cover; }
+    .hero::after { content:''; position:absolute; inset:0; z-index:-1; background:linear-gradient(0deg,rgba(6,28,19,.7),transparent 46%); }
+    header { width:min(1180px,100%); margin:auto; padding:26px 32px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:11px; font-size:14px; font-weight:600; }
+    .mark { display:grid; place-items:center; width:33px; height:33px; border:1px solid rgba(255,255,255,.7); border-radius:50%; font:500 13px Georgia,serif; }
+    nav { display:flex; gap:22px; font-size:13px; color:rgba(255,255,255,.9); }
+    nav a:hover { color:#fff; text-decoration:underline; }
+    .hero-inner { width:min(1180px,100%); margin:auto; padding:clamp(80px,14vh,156px) 32px 100px; }
+    .eyebrow { margin:0 0 18px; font-size:11px; font-weight:600; letter-spacing:.17em; color:#d3e6c5; }
+    h1,h2,h3 { font-family:'Noto Serif KR',serif; font-weight:500; letter-spacing:-.055em; }
+    h1 { max-width:760px; margin:0; font-size:clamp(44px,6.6vw,82px); line-height:1.18; }
+    h1 em { font-style:normal; color:#d1e2b9; }
+    .hero-copy { max-width:475px; margin:25px 0 33px; color:rgba(255,255,255,.84); font-size:16px; }
+    .button { display:inline-flex; align-items:center; gap:12px; padding:14px 22px; border-radius:999px; background:#e6eed8; color:var(--deep); font-size:14px; font-weight:600; transition:.2s ease; }
+    .button:hover { transform:translateY(-2px); background:#fff; }
+    .button b { font-size:19px; font-weight:400; }
+    .trail { position:absolute; right:32px; bottom:34px; color:rgba(255,255,255,.75); font-size:11px; letter-spacing:.12em; writing-mode:vertical-rl; }
+    main { width:min(1180px,calc(100% - 40px)); margin:-50px auto 0; position:relative; z-index:2; }
+    .welcome { padding:42px 44px; background:#fbfaf5; box-shadow:0 18px 48px rgba(12,37,25,.18); display:grid; grid-template-columns:1.3fr 1fr; gap:50px; align-items:end; }
+    .welcome h2 { margin:0; font-size:clamp(28px,3.4vw,42px); line-height:1.35; }
+    .welcome p { margin:0; color:#53645b; font-size:15px; }
+    .section { padding:86px 0; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:26px; }
+    .section-head h2 { margin:0; font-size:34px; }
+    .section-head p { margin:0; color:#65736a; font-size:14px; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { min-height:285px; padding:29px; display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--line); background:#f9f7ef; transition:.25s ease; }
+    .card:hover { background:#e3ecd9; transform:translateY(-4px); box-shadow:0 15px 30px rgba(21,52,38,.1); }
+    .step { color:#6c8b62; font-size:11px; font-weight:600; letter-spacing:.12em; }
+    .card h3 { margin:12px 0 8px; font-size:25px; }
+    .card p { margin:0; color:#617068; font-size:14px; }
+    .card .go { align-self:flex-end; color:#537148; font-size:22px; }
+    .field-note { background:var(--forest); color:#f2f5e9; padding:48px; display:grid; grid-template-columns:1fr auto; gap:30px; align-items:center; }
+    .field-note .eyebrow { color:#b7d29d; }
+    .field-note h2 { margin:0; font-size:31px; line-height:1.38; }
+    .field-note p { margin:12px 0 0; color:rgba(242,245,233,.72); font-size:14px; }
+    .archive { color:#ebf3df; border:1px solid rgba(235,243,223,.45); padding:12px 18px; border-radius:999px; white-space:nowrap; font-size:13px; font-weight:600; }
+    .archive:hover { background:#ebf3df; color:var(--deep); }
+    footer { width:min(1180px,calc(100% - 40px)); margin:0 auto; padding:30px 0 38px; border-top:1px solid var(--line); display:flex; justify-content:space-between; color:#68756d; font-size:12px; }
+    @media (max-width:720px) { header { padding:20px; } nav { gap:13px; } .hero-inner { padding:110px 24px 108px; } .trail { right:20px; } main { width:calc(100% - 28px); margin-top:-28px; } .welcome { padding:30px 25px; grid-template-columns:1fr; gap:18px; } .section { padding:56px 0; } .section-head,.field-note,footer { align-items:flex-start; flex-direction:column; } .cards { grid-template-columns:1fr; } .card { min-height:205px; } .field-note { padding:33px 26px; } }
   </style>
 </head>
 <body>
-  <header>
-    <a class="brand" href="index.html"><span class="mark">IR</span><span>간헐적 은퇴 연구소</span></a>
-    <nav><a href="record.html?mode=writing">글쓰기</a><a href="gallery.html">기록 보기</a></nav>
-  </header>
+  <section class="hero">
+    <header>
+      <a class="brand" href="index.html"><span class="mark">IR</span><span>숲의 기록실</span></a>
+      <nav><a href="record.html?mode=writing">방문 기록</a><a href="gallery.html">숲 아카이브</a></nav>
+    </header>
+    <div class="hero-inner">
+      <p class="eyebrow">FIELD NOTES FROM THE FOREST</p>
+      <h1>숲을 찾아가고,<br><em>그 시간을 남깁니다.</em></h1>
+      <p class="hero-copy">걷고, 쉬고, 발견한 것을 정리하는 작은 프로젝트. 이곳에 숲의 이름과 계절, 사진, 그리고 그날의 마음을 차곡차곡 보관합니다.</p>
+      <a class="button" href="record.html?mode=writing">방문 기록 시작하기 <b>↗</b></a>
+    </div>
+    <span class="trail">WALK · NOTICE · KEEP</span>
+  </section>
   <main>
-    <section class="hero">
-      <p class="eyebrow">SECOND LIFE, SIMPLY</p>
-      <h1>오늘의 삶을,<br><em>한 줄로 남겨요.</em></h1>
-      <p class="intro">이곳은 삶의 다음 장을 준비하며, 가끔 멈추고 기록하는 작은 연구실입니다. 오늘 필요한 일 하나만 고르면 충분합니다.</p>
-      <div class="actions">
-        <a class="button primary" href="record.html?mode=writing">오늘의 생각 쓰기</a>
-        <a class="button secondary" href="record.html?mode=writing&amp;view=library">기록 읽기</a>
-      </div>
+    <section class="welcome">
+      <h2>숲에 다녀온 날,<br>기억이 흩어지기 전에.</h2>
+      <p>완벽한 기록일 필요는 없습니다. 한 장의 사진, 한 문장, 걸었던 길 하나면 충분해요. 방문을 정리하고 다음 숲을 기다립니다.</p>
     </section>
-    <div class="divider"></div>
-    <section>
-      <div class="section-title"><h2>지금 할 수 있는 일</h2><p>복잡한 메뉴 대신, 세 가지.</p></div>
+    <section class="section">
+      <div class="section-head"><h2>숲을 기록하는 흐름</h2><p>방문부터 아카이브까지, 세 걸음.</p></div>
       <div class="cards">
-        <a class="card" href="record.html?mode=writing"><div><span class="number">01 / WRITE</span><h3>글 남기기</h3><p>생각, 배움, 오늘의 질문을 짧게 적습니다.</p></div><span class="arrow">↗</span></a>
-        <a class="card" href="record.html"><div><span class="number">02 / SAVE</span><h3>그림·사진 올리기</h3><p>오늘 발견한 장면을 연구소에 보관합니다.</p></div><span class="arrow">↗</span></a>
-        <a class="card" href="record.html?mode=writing&amp;view=library"><div><span class="number">03 / READ</span><h3>기록 읽기</h3><p>천천히 쌓인 글과 사진을 다시 만납니다.</p></div><span class="arrow">↗</span></a>
+        <a class="card" href="record.html?mode=writing"><div><span class="step">01 / VISIT</span><h3>숲에 가기</h3><p>가고 싶은 숲과 오늘의 작은 기대를 남깁니다.</p></div><span class="go">↗</span></a>
+        <a class="card" href="record.html?mode=writing"><div><span class="step">02 / REFLECT</span><h3>방문을 정리하기</h3><p>걸었던 길, 만난 빛, 오래 남은 생각을 씁니다.</p></div><span class="go">↗</span></a>
+        <a class="card" href="record.html"><div><span class="step">03 / KEEP</span><h3>사진과 글 올리기</h3><p>다음 계절에 다시 만날 수 있도록 보관합니다.</p></div><span class="go">↗</span></a>
       </div>
     </section>
-    <section class="note">
-      <div><h2>연구의 방향이 궁금한가요?</h2><p>세 연구실과 프로젝트는 필요할 때만 천천히 둘러보세요.</p></div>
-      <a class="quiet" href="projects.html">연구실 보기 →</a>
+    <section class="field-note">
+      <div><p class="eyebrow">YOUR FOREST, YOUR ARCHIVE</p><h2>한 번의 방문이<br>한 권의 기록이 됩니다.</h2><p>계절과 장소, 그리고 그때의 나를 다시 꺼내 보세요.</p></div>
+      <a class="archive" href="gallery.html">숲 아카이브 보기 →</a>
     </section>
   </main>
-  <footer><span>© 2026 INTERMITTENT RETIREMENT LAB.</span><a href="https://blog.naver.com/minawoman" target="_blank" rel="noreferrer">민감닥터 블로그 ↗</a></footer>
+  <footer><span>© 2026 FOREST FIELD NOTES · INTERMITTENT RETIREMENT LAB.</span><a href="https://blog.naver.com/minawoman" target="_blank" rel="noreferrer">민감닥터 블로그 ↗</a></footer>
 </body>
 </html>
