@@ -3,25 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>기록하기 | 간헐적은퇴 연구소</title>
+  <title>기록하기 | 숲의 기록실</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="archive-app.css" />
-<style>[hidden]{display:none!important}
-.writing-library{margin-top:28px;padding-top:28px;border-top:1px solid #d8d0c2}.writing-library h2{margin:0 0 6px}.writing-library>p{color:#647068;margin:0 0 18px}.writing-list{display:grid;gap:14px}.writing-item{padding:22px;background:#f3eee4;border-left:3px solid #6d7455}.writing-item small{display:block;color:#8b755c;margin-bottom:7px}.writing-item h3{font:500 20px/1.5 serif;margin:0 0 8px;color:#243a32}.writing-item p{white-space:pre-wrap;margin:0;color:#525b54}.writing-empty{padding:22px;background:#f3eee4;color:#647068}
-</style></head>
+  <style>
+    [hidden]{display:none!important}
+    .writing-library{margin-top:28px;padding-top:28px;border-top:1px solid #d8d0c2}.writing-library h2{margin:0 0 6px}.writing-library>p{color:#647068;margin:0 0 18px}.writing-list{display:grid;gap:14px}.writing-item{padding:22px;background:#f3eee4;border-left:3px solid #6d7455}.writing-item small{display:block;color:#8b755c;margin-bottom:7px}.writing-item h3{font:500 20px/1.5 serif;margin:0 0 8px;color:#243a32}.writing-item p{white-space:pre-wrap;margin:0;color:#525b54}.writing-empty{padding:22px;background:#f3eee4;color:#647068}
+    .auth-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.auth-guide{margin:18px 0 0;padding:14px 16px;border-left:3px solid #6d7455;background:#f3eee4;color:#526159;font-size:13px;line-height:1.65}.recovery-form{display:grid;gap:14px}.recovery-form label{display:grid;gap:7px}.recovery-form input{width:100%;padding:12px;border:1px solid #d8d0c2;border-radius:4px;font:inherit}.recovery-note{margin:0 0 18px;color:#647068;font-size:14px}
+  </style>
+</head>
 <body>
   <main class="archive-app record-page">
     <nav class="nav" aria-label="기록 메뉴">
-      <a class="brand" href="index.html">간헐적은퇴 <span>연구소</span></a>
-      <a class="back-link" href="gallery.html">공개 기록 보기</a>
+      <a class="brand" href="index.html">숲의 <span>기록실</span></a>
+      <a class="back-link" href="gallery.html">숲 아카이브 보기</a>
     </nav>
     <section class="record-wrap">
-      <div class="record-intro"><p class="section-label">PRIVATE STUDIO</p><h1 id="record-title">오늘의<br /><em>기록하기</em></h1><p id="record-intro-copy">그림 한 장과 그날의 생각을 남겨두세요.<br />공개를 선택한 기록만 갤러리에 보입니다.</p></div>
+      <div class="record-intro"><p class="section-label">PRIVATE FOREST STUDIO</p><h1 id="record-title">숲의<br /><em>기록하기</em></h1><p id="record-intro-copy">방문한 숲의 빛과 길, 사진과 생각을 남겨두세요.<br />공개를 선택한 기록은 숲 아카이브에 보입니다.</p></div>
       <section id="auth-panel" class="record-card">
-        <h2>로그인</h2>
-        <p>원장님만 기록을 올릴 수 있는 개인 공간입니다.</p>
+        <h2>기록실 열기</h2>
+        <p>기록을 저장하려면 로그인해 주세요.</p>
         <form id="login-form"><label>이메일<input name="email" type="email" autocomplete="email" required /></label><label>비밀번호<input name="password" type="password" autocomplete="current-password" required /></label><button class="button" type="submit">로그인 <span>→</span></button></form>
-        <button id="signup-button" class="text-button" type="button">처음이라면 계정 만들기</button>
+        <div class="auth-actions"><button id="signup-button" class="text-button" type="button">새 계정 만들기</button><button id="reset-password-button" class="text-button" type="button">비밀번호 재설정</button></div>
+        <p class="auth-guide">처음이라면 이메일과 6자 이상 비밀번호를 입력한 뒤 <strong>새 계정 만들기</strong>를 누르세요. 로그인되지 않으면 같은 이메일을 넣고 <strong>비밀번호 재설정</strong>을 선택하세요.</p>
         <p id="auth-message" class="form-message"></p>
       </section>
       <section id="editor-panel" class="record-card" hidden>
@@ -32,5 +36,55 @@
     </section>
   </main>
   <script type="module" src="record.js"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './supabase-config.js';
+
+    const url = new URL(location.href);
+    let scrubbed = false;
+    ['email', 'password'].forEach((name) => { if (url.searchParams.has(name)) { url.searchParams.delete(name); scrubbed = true; } });
+    if (scrubbed) history.replaceState({}, '', url);
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const authPanel = document.querySelector('#auth-panel');
+    const editorPanel = document.querySelector('#editor-panel');
+    const authMessage = document.querySelector('#auth-message');
+    const resetButton = document.querySelector('#reset-password-button');
+    const recoveryRequested = new URLSearchParams(location.search).get('recovery') === '1';
+
+    resetButton.addEventListener('click', async () => {
+      const email = String(new FormData(document.querySelector('#login-form')).get('email') || '').trim();
+      if (!email) { authMessage.textContent = '비밀번호를 재설정할 이메일을 먼저 입력해 주세요.'; return; }
+      authMessage.textContent = '재설정 링크를 보내는 중입니다.';
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/record.html?recovery=1' });
+      authMessage.textContent = error ? '재설정 링크를 보내지 못했습니다. 이메일 주소를 확인한 뒤 다시 시도해 주세요.' : '이메일로 비밀번호 재설정 링크를 보냈습니다. 메일을 열어 새 비밀번호를 정해 주세요.';
+    });
+
+    function renderRecovery() {
+      authPanel.hidden = false;
+      editorPanel.hidden = true;
+      authPanel.innerHTML = '<h2>새 비밀번호 만들기</h2>' + '<p class="recovery-note">새 비밀번호를 정하면 바로 기록실에 들어갈 수 있습니다.</p>' + '<form id="recovery-form" class="recovery-form"><label>새 비밀번호<input name="password" type="password" autocomplete="new-password" minlength="6" required /></label><label>새 비밀번호 확인<input name="confirmPassword" type="password" autocomplete="new-password" minlength="6" required /></label><button class="button" type="submit">새 비밀번호 저장 <span>→</span></button></form><p id="recovery-message" class="form-message"></p>';
+      document.querySelector('#recovery-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        const password = String(form.get('password') || '');
+        const confirmPassword = String(form.get('confirmPassword') || '');
+        const message = document.querySelector('#recovery-message');
+        if (password !== confirmPassword) { message.textContent = '두 비밀번호가 서로 다릅니다.'; return; }
+        message.textContent = '새 비밀번호를 저장하는 중입니다.';
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) { message.textContent = '새 비밀번호를 저장하지 못했습니다. 링크를 다시 열어 주세요.'; return; }
+        message.textContent = '새 비밀번호를 저장했습니다. 기록실로 이동합니다.';
+        history.replaceState({}, '', location.pathname + '?mode=writing');
+        window.setTimeout(() => { location.href = 'record.html?mode=writing'; }, 700);
+      });
+    }
+
+    if (recoveryRequested) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) renderRecovery();
+      supabase.auth.onAuthStateChange((_event, nextSession) => { if (nextSession) renderRecovery(); });
+    }
+  </script>
 </body>
 </html>
